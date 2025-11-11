@@ -1,5 +1,5 @@
 ﻿namespace GraduationProjectTanks.Shared
-{/*
+{
     internal class ShowTextState : BaseGameState
     {
         public string Text { get; set; }
@@ -39,5 +39,5 @@
         {
             return _timeLeft <= 0f;
         }
-    }*/
+    }
 }
