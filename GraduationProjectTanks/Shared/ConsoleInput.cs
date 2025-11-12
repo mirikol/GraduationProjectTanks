@@ -8,7 +8,7 @@
             abstract void OnArrowDown();
             abstract void OnArrowLeft();
             abstract void OnArrowRight();
-
+            abstract void OnArrowShoot();
         }
 
         private readonly HashSet<IArrowListener> _arrowListeners = [];
@@ -43,6 +43,9 @@
                         break;
                     case ConsoleKey.RightArrow or ConsoleKey.D:
                         listener.OnArrowRight();
+                        break;
+                    case ConsoleKey.Enter or ConsoleKey.Backspace:
+                        listener.OnArrowShoot();
                         break;
                 }
             }
