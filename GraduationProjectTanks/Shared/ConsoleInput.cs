@@ -21,6 +21,11 @@
             }
         }
 
+        public void Unsubscribe(IArrowListener listener)
+        {
+            _arrowListeners.Remove(listener);
+        }
+
         public void Update()
         {
             if (!Console.KeyAvailable)
@@ -44,7 +49,7 @@
                     case ConsoleKey.RightArrow or ConsoleKey.D:
                         listener.OnArrowRight();
                         break;
-                    case ConsoleKey.Enter or ConsoleKey.Backspace:
+                    case ConsoleKey.Enter or ConsoleKey.Spacebar:
                         listener.OnArrowShoot();
                         break;
                 }

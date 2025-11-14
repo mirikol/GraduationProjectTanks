@@ -38,37 +38,46 @@
 
             _pixels = new char[_maxWidth, _maxHeight];
             _pixelColors = new byte[_maxWidth, _maxHeight];
+
+            Console.CursorVisible = false;
         }
 
         public void SetPixel(int w, int h, char val, byte colorIdx)
         {
-            _pixels[w, h] = val;
-            _pixelColors[w, h] = colorIdx;
+            if (w >= 0 && w < Width && h >= 0 && h < Height)
+            {
+                _pixels[w, h] = val;
+                _pixelColors[w, h] = colorIdx;
+            }
         }
 
         public void Render()
         {
-            Console.Clear();
             Console.BackgroundColor = BgColor;
 
-            for (var w = 0; w < Width; w++)
-                for (var h = 0; h < Height; h++)
+            for (var h = 0; h < Height; h++)
+                for (var w = 0; w < Width; w++)
                 {
                     var colorIdx = _pixelColors[w, h];
+                    if (colorIdx >= _colors.Length)
+                        continue;
+
                     var color = _colors[colorIdx];
                     var symbol = _pixels[w, h];
 
                     if (symbol == 0 || color == BgColor)
+                    {
+                        Console.SetCursorPosition(w, h);
+                        Console.Write(' ');
                         continue;
+                    }
 
                     Console.ForegroundColor = color;
-
                     Console.SetCursorPosition(w, h);
                     Console.Write(symbol);
                 }
 
             Console.ResetColor();
-            Console.CursorVisible = false;
         }
 
         public void DrawString(string text, int atWidth, int atHeight, ConsoleColor color)
@@ -77,10 +86,13 @@
             if (colorIdx < 0)
                 return;
 
-            for (int i = 0; i < text.Length; i++)
+            for (int i = 0; i < text.Length && atWidth + i < Width; i++)
             {
-                _pixels[atWidth + i, atHeight] = text[i];
-                _pixelColors[atWidth + i, atHeight] = (byte)colorIdx;
+                if (atWidth + i >= 0 && atHeight >= 0 && atHeight < Height)
+                {
+                    _pixels[atWidth + i, atHeight] = text[i];
+                    _pixelColors[atWidth + i, atHeight] = (byte)colorIdx;
+                }
             }
         }
 
@@ -115,8 +127,7 @@
             for (int w = 0; w < Width; w++)
                 for (var h = 0; h < Height; h++)
                 {
-                    if (_pixels[w, h] != casted._pixels[w, h] ||
-                                    _pixelColors[w, h] != casted._pixelColors[w, h])
+                    if (_pixels[w, h] != casted._pixels[w, h] || _pixelColors[w, h] != casted._pixelColors[w, h])
                     {
                         return false;
                     }
