@@ -7,11 +7,13 @@ namespace GraduationProjectTanks.Tanks
         private Map _map;
         private MapRenderer _mapRenderer;
         private bool _isDone;
+        private ConsoleRenderer _renderer;
 
-        public TanksGameplayState(int width, int heidht, int seed)
+        public TanksGameplayState(int width, int heidht, int seed, ConsoleRenderer renderer)
         {
             _map = new Map(width, heidht, seed);
             _mapRenderer = new MapRenderer();
+            _renderer = renderer;
         }
 
         public override void Update(float deltaTime)
@@ -22,13 +24,7 @@ namespace GraduationProjectTanks.Tanks
         {
             _isDone = false;
         }
-
-        public override void Draw(ConsoleRenderer renderer)
-        {
-            renderer.Clear();
-            _mapRenderer.DrawMap(_map, renderer, 0, 0);
-        }
-
+                
         public override bool IsDone()
         {
             return _isDone;
@@ -47,6 +43,12 @@ namespace GraduationProjectTanks.Tanks
         public Map GetMap()
         {
             return _map;
+        }
+
+        public override void Draw(ConsoleRenderer renderer)
+        {
+            renderer.Clear();
+            _mapRenderer.DrawMap(_map, renderer, 0, 0);
         }
     }
 }

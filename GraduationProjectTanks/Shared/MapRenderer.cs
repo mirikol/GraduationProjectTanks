@@ -40,9 +40,17 @@
 
         private char GetCellSymbol(Map map, int x, int y)
         {
+            if (x < 0 || x >= map.Width || y < 0 || y >= map.Height)
+                return EmptyChar;
+
+            if (map.Cells[x, y] == CellType.Brick && map.WallStates[x, y] == WallState.Destroyed)
+                return EmptyChar;
+
             return map.Cells[x, y] switch
             {
-                CellType.Brick => map.WallStates[x, y] == WallState.Damaged ? DamagedBrickChar : BrickChar,
+                CellType.Brick => map.WallStates[x, y] == WallState.Damaged
+                ? DamagedBrickChar
+                : BrickChar,
                 CellType.Water => WaterChar,
                 CellType.Empty => EmptyChar,
                 _ => EmptyChar
@@ -51,9 +59,14 @@
 
         private ConsoleColor GetCellColor(Map map, int x, int y)
         {
+            if (x < 0 || x >= map.Width || y < 0 || y >= map.Height)
+                return ConsoleColor.Black;
+
             return map.Cells[x, y] switch
             {
-                CellType.Brick => map.WallStates[x, y] == WallState.Damaged ? ConsoleColor.DarkRed : ConsoleColor.Red,
+                CellType.Brick => map.WallStates[x, y] == WallState.Damaged
+                ? ConsoleColor.DarkRed
+                : ConsoleColor.Red,
                 CellType.Water => ConsoleColor.Blue,
                 CellType.Empty => ConsoleColor.DarkGray,
                 _ => ConsoleColor.DarkGray
@@ -62,7 +75,7 @@
 
         private byte GetColorIndex(ConsoleColor color, ConsoleRenderer renderer)
         {
-            return (byte)color;
+            return renderer.GetColorIndex(color);
         }
     }
 }
