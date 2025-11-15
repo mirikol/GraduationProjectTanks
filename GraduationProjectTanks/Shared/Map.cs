@@ -255,11 +255,22 @@ namespace GraduationProjectTanks.Shared
             if (x < 0 || x >= Width || y < 0 || y >= Height)
                 return false;
 
+            return Cells[x, y] == CellType.Empty;
+        }
+
+        public bool IsCellPassbleForProjectile(int x, int y)
+        {
+            if (x < 0 || x >= Width || y < 0 || y >= Height)
+                return false;
+
             return Cells[x, y] == CellType.Empty || Cells[x, y] == CellType.Water;
         }
 
         public void DamageWall(int x, int y)
         {
+            if (x < 0 || x >= Width || y < 0 || y >= Height)
+                return;
+
             if (Cells[x, y] == CellType.Brick)
             {
                 switch (WallStates[x, y])
