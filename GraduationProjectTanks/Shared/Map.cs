@@ -75,6 +75,7 @@ namespace GraduationProjectTanks.Shared
         public int Height { get; }
         public CellType[,] Cells { get; }
         public WallState[,] WallStates { get; }
+
         private Random _random;
 
         public Map(int width, int height, int seed)
@@ -130,8 +131,6 @@ namespace GraduationProjectTanks.Shared
                     }
                 }
             }
-
-            AddRandomWalls();
         }
 
         private List<Cell> GetUnvisitedNeighbors(Cell cell, bool[,] visited)
@@ -160,40 +159,46 @@ namespace GraduationProjectTanks.Shared
             }
         }
 
-        private void AddRandomWalls()
-        {
-            for (int i = 0; i < Width * Height / 4; i++)
-            {
-                var x = _random.Next(Width);
-                var y = _random.Next(Height);
-
-                if (Cells[x, y] == CellType.Empty)
-                {
-                    Cells[x, y] = CellType.Brick;
-                    WallStates[x, y] = WallState.Intact;
-                }
-            }
-        }
-
         private void GenerateWater()
         {
             int waterSources = _random.Next(1, MaxWaterSources + 1);
+            int createSources = 0;
 
             for (int i = 0; i < waterSources; i++)
             {
                 var startX = _random.Next(Width);
                 var startY = _random.Next(Height);
 
-                CreateWaterArea(startX, startY);
+                if (Cells[startX, startY] == CellType.Empty)
+                {
+                    Console.WriteLine($"Создание водного источника #{createSources + 1} в ({startX}, {startY})");
+                    CreateWaterArea(startX, startY);
+                    createSources++;
+                }
+                else
+                {
+                    Console.WriteLine($"Пропуск источника #{i + 1} в ({startX}, {startY}): занято {Cells[startX, startY]}");
+                }
             }
+
+            Console.WriteLine($"Создано: {createSources}/{waterSources} водных источников");
         }
 
         private void CreateWaterArea(int startX, int startY)
         {
+            if (Cells[startX, startY] != CellType.Empty)
+            {
+                Console.WriteLine($"Невозможно создать воду в ({startX}, {startY}): занято {Cells[startX, startY]}");
+                return;
+            }
+
             var queue = new Queue<Cell>();
             var visited = new bool[Width, Height];
             int waterAmount = _random.Next(3, MaxWaterAmount + 1);
             int created = 0;
+
+            Console.WriteLine($"Создание водной области из ({startX}, {startY})");
+            Console.WriteLine($"Планируемое количество воды: {waterAmount}");
 
             queue.Enqueue(new Cell(startX, startY));
             visited[startX, startY] = true;
@@ -206,8 +211,15 @@ namespace GraduationProjectTanks.Shared
                 {
                     Cells[current.X, current.Y] = CellType.Water;
                     created++;
-                }
 
+                    Console.WriteLine($"Создана водная клетка #{created} в ({current.X}, {current.Y})");
+                }
+                else
+                {
+                    Console.WriteLine($"Пропущено ({current.X}, {current.Y}): занято - {Cells[current.X, current.Y]}");
+                }
+                
+                int neighborsAdded = 0;
                 foreach (var shift in NeighbourCellShifts)
                 {
                     var neighbor = Cell.Sum(current, shift);
@@ -216,9 +228,26 @@ namespace GraduationProjectTanks.Shared
                     {
                         visited[neighbor.X, neighbor.Y] = true;
                         queue.Enqueue(neighbor);
+                        neighborsAdded++;
+
+                        Console.WriteLine($"Добавлен сосед ({neighbor.X}, {neighbor.Y}) в очередь");
                     }
                 }
+
+                if (neighborsAdded == 0)
+                {
+                    Console.WriteLine($"Нет новых соседей из ({current.X}, {current.Y})");
+                }
+
+                if (created >= waterAmount)
+                {
+                    Console.WriteLine($"Достигнута цель в {created} клеток, выходим из цикла");
+                    break;
+                }
             }
+
+            Console.WriteLine($"Водная область завершена. Создано: {created}/{waterAmount} клеток");
+            Console.WriteLine($"Осталось в очереди: {queue.Count} клеток");
         }
 
         public bool IsCellPassable(int x, int y)
