@@ -140,7 +140,6 @@ namespace GraduationProjectTanks.Shared
                     Console.Write(symbol);
                 }
             }
-
             Console.ResetColor();
         }
 

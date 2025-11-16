@@ -2,10 +2,10 @@
 {
     public interface IRenderer
     {
-        void SetPixel(int x, int y, char symbol, ConsoleColor color);
-        void Render();
-        void Clear();
-        int Width {  get; }
-        int Height { get; }
+        public void SetPixel(int x, int y, char symbol, ConsoleColor color);
+        public void Render();
+        public void Clear();
+        public int Width {  get; }
+        public int Height { get; }
     }
 }

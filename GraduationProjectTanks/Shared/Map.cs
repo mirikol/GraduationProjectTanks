@@ -59,7 +59,8 @@ namespace GraduationProjectTanks.Shared
 
     public class Map
     {
-        public const int CellSize = 3;
+        public const int CellSizeX = 4;
+        public const int CellSizeY = 2;
         public const int MaxWaterSources = 3;
         public const int MaxWaterAmount = 10;
 
@@ -95,16 +96,42 @@ namespace GraduationProjectTanks.Shared
                 for (int y = 0; y < Height; y++)
                     Cells[x, y] = CellType.Empty;
 
+            GeneratePerimeterWall();
+
             GenerateMaze();
 
             GenerateWater();
+        }
+
+        private void GeneratePerimeterWall()
+        {
+            for (int x = 0; x < Width; x++)
+            {
+                Cells[x, 0] = CellType.Brick;
+                Cells[x, Height -1] = CellType.Brick;
+                WallStates[x, 0] = WallState.Intact;
+                WallStates[x, Height -1] = WallState.Intact;
+            }
+
+            for (int y = 0; y < Height; y++)
+            {
+                Cells[0, y] = CellType.Brick;
+                Cells[Width - 1, y] = CellType.Brick;
+                WallStates[0, y] = WallState.Intact;
+                WallStates[Width - 1, y] = WallState.Intact;
+            }
         }
 
         private void GenerateMaze()
         {
             var visited = new bool[Width, Height];
             var stack = new Stack<Cell>();
-            var start = new Cell(Width / 2, Height / 2);
+
+            var start = new Cell(_random.Next(1, Width -1), _random.Next(1, Height - 1));
+
+            if (start.X % 2 != 0) start.X--;
+            if (start.Y % 2 != 0) start.Y--;
+
             stack.Push(start);
             visited[start.X, start.Y] = true;
 
@@ -112,6 +139,7 @@ namespace GraduationProjectTanks.Shared
             {
                 var current = stack.Pop();
                 var neighbors = GetUnvisitedNeighbors(current, visited);
+                
                 Shuffle(neighbors);
 
                 foreach (var neighbor in neighbors)
@@ -120,7 +148,7 @@ namespace GraduationProjectTanks.Shared
                     {
                         var wall = new Cell((current.X + neighbor.X) / 2, (current.Y + neighbor.Y) / 2);
                     
-                        if (wall.IsInBounds(0, 0, Width, Height))
+                        if (wall.IsInBounds(1, 1, Width -1, Height - 1))
                         {
                             Cells[wall.X, wall.Y] = CellType.Brick;
                             WallStates[wall.X, wall.Y] = WallState.Intact;
@@ -141,12 +169,11 @@ namespace GraduationProjectTanks.Shared
             {
                 var neighbor = Cell.Sum(cell, new Cell(shift.X * 2, shift.Y * 2));
                 
-                if (neighbor.IsInBounds(0, 0, Width, Height) && !visited[neighbor.X, neighbor.Y])
+                if (neighbor.IsInBounds(1, 1, Width - 1, Height - 1) && !visited[neighbor.X, neighbor.Y])
                 {
                     neighbors.Add(neighbor);
                 }
             }
-
             return neighbors;
         }
 
@@ -161,45 +188,40 @@ namespace GraduationProjectTanks.Shared
 
         private void GenerateWater()
         {
-            int waterSources = _random.Next(1, MaxWaterSources + 1);
-            int createSources = 0;
+            var emptyCells = new List<Cell>();
 
-            for (int i = 0; i < waterSources; i++)
+            for (int x = 1; x < Width - 1; x++)
             {
-                var startX = _random.Next(Width);
-                var startY = _random.Next(Height);
-
-                if (Cells[startX, startY] == CellType.Empty)
+                for (int y = 1; y < Height - 1; y++)
                 {
-                    Console.WriteLine($"Создание водного источника #{createSources + 1} в ({startX}, {startY})");
-                    CreateWaterArea(startX, startY);
-                    createSources++;
-                }
-                else
-                {
-                    Console.WriteLine($"Пропуск источника #{i + 1} в ({startX}, {startY}): занято {Cells[startX, startY]}");
+                    if (Cells[x, y] == CellType.Empty)
+                        emptyCells.Add(new Cell(x, y));
                 }
             }
 
-            Console.WriteLine($"Создано: {createSources}/{waterSources} водных источников");
+            if (emptyCells.Count == 0)
+                return;
+
+            int waterSources = Math.Min(_random.Next(1, MaxWaterSources + 1), emptyCells.Count);
+
+            Shuffle(emptyCells);
+
+            for (int i = 0; i < waterSources; i++)
+            {
+                var cell = emptyCells[i];
+                CreateWaterArea(cell.X, cell.Y);
+            }
         }
 
         private void CreateWaterArea(int startX, int startY)
         {
             if (Cells[startX, startY] != CellType.Empty)
-            {
-                Console.WriteLine($"Невозможно создать воду в ({startX}, {startY}): занято {Cells[startX, startY]}");
                 return;
-            }
 
             var queue = new Queue<Cell>();
             var visited = new bool[Width, Height];
             int waterAmount = _random.Next(3, MaxWaterAmount + 1);
             int created = 0;
-
-            Console.WriteLine($"Создание водной области из ({startX}, {startY})");
-            Console.WriteLine($"Планируемое количество воды: {waterAmount}");
-
             queue.Enqueue(new Cell(startX, startY));
             visited[startX, startY] = true;
 
@@ -211,43 +233,22 @@ namespace GraduationProjectTanks.Shared
                 {
                     Cells[current.X, current.Y] = CellType.Water;
                     created++;
+                }         
 
-                    Console.WriteLine($"Создана водная клетка #{created} в ({current.X}, {current.Y})");
-                }
-                else
-                {
-                    Console.WriteLine($"Пропущено ({current.X}, {current.Y}): занято - {Cells[current.X, current.Y]}");
-                }
-                
-                int neighborsAdded = 0;
                 foreach (var shift in NeighbourCellShifts)
                 {
                     var neighbor = Cell.Sum(current, shift);
 
-                    if (neighbor.IsInBounds(0, 0, Width, Height) && !visited[neighbor.X, neighbor.Y] && _random.NextDouble() > 0.3)
+                    if (neighbor.IsInBounds(1, 1, Width - 1, Height - 1) && !visited[neighbor.X, neighbor.Y] && _random.NextDouble() > 0.3)
                     {
                         visited[neighbor.X, neighbor.Y] = true;
                         queue.Enqueue(neighbor);
-                        neighborsAdded++;
-
-                        Console.WriteLine($"Добавлен сосед ({neighbor.X}, {neighbor.Y}) в очередь");
                     }
                 }
 
-                if (neighborsAdded == 0)
-                {
-                    Console.WriteLine($"Нет новых соседей из ({current.X}, {current.Y})");
-                }
-
                 if (created >= waterAmount)
-                {
-                    Console.WriteLine($"Достигнута цель в {created} клеток, выходим из цикла");
                     break;
-                }
-            }
-
-            Console.WriteLine($"Водная область завершена. Создано: {created}/{waterAmount} клеток");
-            Console.WriteLine($"Осталось в очереди: {queue.Count} клеток");
+            }    
         }
 
         public bool IsCellPassable(int x, int y)
