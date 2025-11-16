@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace GraduationProjectTanks.Shared
+﻿namespace GraduationProjectTanks.Systems
 {
     public class ConsoleRenderer : IRenderer
     {

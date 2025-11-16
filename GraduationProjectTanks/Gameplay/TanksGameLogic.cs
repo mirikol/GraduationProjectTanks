@@ -1,6 +1,6 @@
-﻿using GraduationProjectTanks.Shared;
+﻿using GraduationProjectTanks.Systems;
 
-namespace GraduationProjectTanks.Tanks
+namespace GraduationProjectTanks.Gameplay
 {
     internal class TanksGameLogic : BaseGameLogic
     {

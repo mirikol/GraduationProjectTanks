@@ -1,4 +1,6 @@
-﻿namespace GraduationProjectTanks.Shared
+﻿using GraduationProjectTanks.Systems;
+
+namespace GraduationProjectTanks.Gameplay
 {
     internal class ShowTextState : BaseGameState
     {
