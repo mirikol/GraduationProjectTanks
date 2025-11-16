@@ -1,4 +1,4 @@
-﻿namespace GraduationProjectTanks.Shared
+﻿namespace GraduationProjectTanks.Systems
 {
     internal class ConsoleInput
     {

@@ -1,5 +1,5 @@
-﻿using GraduationProjectTanks.Shared;
-using GraduationProjectTanks.Tanks;
+﻿using GraduationProjectTanks.Systems;
+using GraduationProjectTanks.Gameplay;
 
 namespace GraduationProjectTanks
 {

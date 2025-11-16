@@ -1,7 +1,6 @@
-﻿using GraduationProjectTanks.Tanks;
-using static GraduationProjectTanks.Shared.Cell;
+﻿using static GraduationProjectTanks.Systems.Cell;
 
-namespace GraduationProjectTanks.Shared
+namespace GraduationProjectTanks.Systems
 {
     public enum CellType
     {
@@ -167,7 +166,7 @@ namespace GraduationProjectTanks.Shared
 
             foreach (var shift in NeighbourCellShifts)
             {
-                var neighbor = Cell.Sum(cell, new Cell(shift.X * 2, shift.Y * 2));
+                var neighbor = Sum(cell, new Cell(shift.X * 2, shift.Y * 2));
                 
                 if (neighbor.IsInBounds(1, 1, Width - 1, Height - 1) && !visited[neighbor.X, neighbor.Y])
                 {
@@ -237,7 +236,7 @@ namespace GraduationProjectTanks.Shared
 
                 foreach (var shift in NeighbourCellShifts)
                 {
-                    var neighbor = Cell.Sum(current, shift);
+                    var neighbor = Sum(current, shift);
 
                     if (neighbor.IsInBounds(1, 1, Width - 1, Height - 1) && !visited[neighbor.X, neighbor.Y] && _random.NextDouble() > 0.3)
                     {
