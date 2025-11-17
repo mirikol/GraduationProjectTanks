@@ -15,9 +15,9 @@ namespace GraduationProjectTanks.Gameplay
         public Map GetMap() => _map;
         public EntityManager EntityManager => _entityManager;
 
-        public TanksGameplayState(int width, int heidht, int seed, ConsoleRenderer renderer)
+        public TanksGameplayState(int width, int height, int seed, ConsoleRenderer renderer)
         {
-            _map = new Map(width, heidht, seed);
+            _map = new Map(width, height, seed);
             _mapRenderer = new MapRenderer();
             _renderer = renderer;
             _entityManager = new EntityManager();
@@ -60,6 +60,7 @@ namespace GraduationProjectTanks.Gameplay
         {
             renderer.Clear();
             _mapRenderer.DrawMap(_map, renderer, 0, 0);
+            _mapRenderer.DrawEntities(_entityManager.Entities, renderer, 0, 0);
         }
     }
 }

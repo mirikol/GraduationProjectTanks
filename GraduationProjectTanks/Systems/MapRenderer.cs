@@ -1,4 +1,6 @@
-﻿namespace GraduationProjectTanks.Systems
+﻿using GraduationProjectTanks.Gameplay.Entities;
+
+namespace GraduationProjectTanks.Systems
 {
     public class MapRenderer
     {
@@ -6,6 +8,66 @@
         private const char WaterChar = '█';
         private const char EmptyChar = ' ';
         private const char DamagedBrickChar = '▒';
+
+        private const char TankUpChar = 'U';
+        private const char TankDownChar = 'D';
+        private const char TankLeftChar = 'L';
+        private const char TankRightChar = 'R';
+        private const char ProjectileChar = 'o';
+
+        public void DrawEntities(IEnumerable<IEntity> entities, ConsoleRenderer renderer, int offsetX = 0, int offsetY = 0)
+        {
+            foreach (var entity in entities.Where(e => e.IsAlive))
+            {
+                DrawEntity(entity, renderer, offsetX, offsetY);
+            }
+        }
+
+        private void DrawEntity(IEntity entity, ConsoleRenderer renderer, int offsetX, int offsetY)
+        {
+            int screenX = offsetX + entity.X * Map.CellSizeX + Map.CellSizeX / 2;
+            int screenY = offsetY + entity.Y * Map.CellSizeY + Map.CellSizeY / 2;
+
+            if (screenX >= renderer.Width || screenY >= renderer.Height || screenX < 0 || screenY < 0)
+                return;
+
+            char symbol = GetEntitySymbol(entity);
+            ConsoleColor color = GetEntityColor(entity);
+
+            renderer.SetPixel(screenX, screenY, symbol, renderer.GetColorIndex(color));
+        }
+
+        private char GetEntitySymbol(IEntity entity)
+        {
+            return entity switch
+            {
+                TankEntity tank => GetTankSymbol(tank),
+                ProjectileEntity => ProjectileChar,
+                _ => '?'
+            };
+        }
+
+        private char GetTankSymbol(TankEntity tank)
+        {
+            return tank.Direction switch
+            {
+                Direction.Up => TankUpChar,
+                Direction.Down => TankDownChar,
+                Direction.Left => TankLeftChar,
+                Direction.Right => TankRightChar,
+                _ => TankUpChar
+            };
+        }
+
+        private ConsoleColor GetEntityColor(IEntity entity)
+        {
+            return entity switch
+            {
+                TankEntity tank => tank.IsPlayer ? ConsoleColor.Green : ConsoleColor.Red,
+                ProjectileEntity => ConsoleColor.Yellow,
+                _ => ConsoleColor.White
+            };
+        }
 
         public void DrawMap(Map map, ConsoleRenderer renderer, int offsetX = 0, int offsetY = 0)
         {

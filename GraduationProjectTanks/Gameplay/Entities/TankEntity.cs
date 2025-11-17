@@ -48,7 +48,7 @@ namespace GraduationProjectTanks.Gameplay.Entities
         {
             if (_shootCooldown > 0) return;
 
-            Vector2 projectilePos = GetProjectileStartPosition();
+            Vector2 projectilePos = _position;
             var projectile = new ProjectileEntity(
                 projectilePos.X,
                 projectilePos.Y,
@@ -56,7 +56,8 @@ namespace GraduationProjectTanks.Gameplay.Entities
                 Characteristics.ProjectileSpeed,
                 Characteristics.Damage,
                 _entityManager,
-                _map
+                _map,
+                this
             );
 
             _entityManager.AddEntity(projectile);
@@ -64,18 +65,6 @@ namespace GraduationProjectTanks.Gameplay.Entities
         }
 
         private Vector2 GetNextPosition()
-        {
-            return Direction switch
-            {
-                Direction.Up => _position + new Vector2(0, -1),
-                Direction.Down => _position + new Vector2(0, 1),
-                Direction.Left => _position + new Vector2(-1, 0),
-                Direction.Right => _position + new Vector2(1, 0),
-                _ => _position
-            };
-        }
-
-        private Vector2 GetProjectileStartPosition()
         {
             return Direction switch
             {
