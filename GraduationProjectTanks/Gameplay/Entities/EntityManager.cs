@@ -1,4 +1,4 @@
-﻿namespace GraduationProjectTanks.Gameplay
+﻿namespace GraduationProjectTanks.Gameplay.Entities
 {
     public class EntityManager
     {
