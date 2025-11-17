@@ -1,4 +1,5 @@
-﻿using GraduationProjectTanks.Systems;
+﻿using GraduationProjectTanks.Gameplay.Entities;
+using GraduationProjectTanks.Systems;
 
 namespace GraduationProjectTanks.Gameplay
 {
@@ -8,21 +9,36 @@ namespace GraduationProjectTanks.Gameplay
         private MapRenderer _mapRenderer;
         private bool _isDone;
         private ConsoleRenderer _renderer;
+        private EntityManager _entityManager;
+        private CollisionSystem _collisionSystem;
+
+        public Map GetMap() => _map;
+        public EntityManager EntityManager => _entityManager;
 
         public TanksGameplayState(int width, int heidht, int seed, ConsoleRenderer renderer)
         {
             _map = new Map(width, heidht, seed);
             _mapRenderer = new MapRenderer();
             _renderer = renderer;
+            _entityManager = new EntityManager();
+            _collisionSystem = new CollisionSystem(_entityManager);
         }
 
         public override void Update(float deltaTime)
         {
+            _entityManager.Update(deltaTime);
+            _collisionSystem.CheckCollision();
+
+            if (!_entityManager.GetEntitiesOfType<TankEntity>().Any(t => t.IsPlayer && t.IsAlive))
+            {
+                _isDone = true;
+            }
         }
 
         public override void Reset()
         {
             _isDone = false;
+            _entityManager = new EntityManager();
         }
                 
         public override bool IsDone()
@@ -38,11 +54,6 @@ namespace GraduationProjectTanks.Gameplay
         public void DamageWall(int x, int y)
         {
             _map.DamageWall(x, y);
-        }
-
-        public Map GetMap()
-        {
-            return _map;
         }
 
         public override void Draw(ConsoleRenderer renderer)

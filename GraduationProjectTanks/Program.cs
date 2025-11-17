@@ -6,13 +6,13 @@ namespace GraduationProjectTanks
     internal class Program
     {
         private const int FrameDelayMs = 100;
+
         static void Main()
         {            
             var renderer = new ConsoleRenderer();
             var input = new ConsoleInput();            
-            var gameplayState = new TanksGameplayState(20, 15, 2345, renderer);
+            var gameplayState = new TanksGameplayState(15, 15, 44219, renderer);
             var gameLogic = new TanksGameLogic(gameplayState, input);
-
             var lastTime = DateTime.Now;
 
             while (true)

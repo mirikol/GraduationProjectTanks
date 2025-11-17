@@ -1,4 +1,4 @@
-﻿namespace GraduationProjectTanks.Gameplay
+﻿namespace GraduationProjectTanks.Gameplay.Entities
 {
     public interface IEntity
     {
@@ -21,11 +21,11 @@
         private static int _nextId = 1;
 
         public string Id { get; }
-        public int X { get; protected set; }
+        public virtual int X { get; private set; }
 
-        public int Y { get; protected set; }
+        public virtual int Y { get; protected set; }
 
-        public int Health { get; protected set; }
+        public virtual int Health { get; protected set; }
 
         public bool IsAlive => Health > 0;
 
