@@ -15,7 +15,7 @@
                 MaxHealth = 3,
                 MoveDelay = 0.1f,
                 ShootDelay = 0.3f,
-                ProjectileSpeed = 6.0f,
+                ProjectileSpeed = 4.0f,
                 Damage = 1
             };
         }
