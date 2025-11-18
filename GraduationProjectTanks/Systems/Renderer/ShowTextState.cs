@@ -1,6 +1,6 @@
-﻿using GraduationProjectTanks.Systems;
+﻿using GraduationProjectTanks.Gameplay;
 
-namespace GraduationProjectTanks.Gameplay
+namespace GraduationProjectTanks.Systems.Renderer
 {
     internal class ShowTextState : BaseGameState
     {
@@ -16,7 +16,7 @@ namespace GraduationProjectTanks.Gameplay
             Text = text;
             _duration = duration;
 
-            Reset();
+            Reset(); 
         }
 
         public override void Draw(ConsoleRenderer renderer)
