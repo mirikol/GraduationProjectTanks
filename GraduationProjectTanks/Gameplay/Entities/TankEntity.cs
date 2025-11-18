@@ -13,14 +13,14 @@ namespace GraduationProjectTanks.Gameplay.Entities
         private Vector2 _position;
         private EntityManager _entityManager;
         private Map _map;
-        private EnemyAI _enemyAI;
+        private EnemyAI? _enemyAI;
 
         public override int X => _position.X;
         public override int Y => _position.Y;
         public override bool IsSolid => true;
         public override bool CanTakeDamage => true;
 
-        public TankEntity(int x, int y, bool isPlayer, TankCharacteristics characteristics, EntityManager entityManager, Map map, Random random = null)
+        public TankEntity(int x, int y, bool isPlayer, TankCharacteristics characteristics, EntityManager entityManager, Map map, Random? random = null)
             : base(x, y, characteristics.MaxHealth)
         {
             _position = new Vector2(x, y);
@@ -115,7 +115,6 @@ namespace GraduationProjectTanks.Gameplay.Entities
             if (other is ProjectileEntity projectile && projectile.Shooter != this)
             {
                 TakeDamage(projectile.Damage);
-                Console.WriteLine($"Танк {Id} получил урон! Здоровье: {Health}");
             }
         }
     }

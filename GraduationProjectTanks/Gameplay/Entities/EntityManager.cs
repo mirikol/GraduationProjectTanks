@@ -10,26 +10,26 @@
 
         public void AddEntity(IEntity entity)
         {
+            if (entity == null)
+                return;
+
             _entitiesToAdd.Add(entity);
         }
 
         public void RemoveEntity(string entityId)
         {
+            if (string.IsNullOrEmpty(entityId))
+                return;
+
             _entitiesToRemove.Add(entityId);
         }
 
         public void RemoveEntity(IEntity entity)
         {
-            RemoveEntity(entity.Id);
-        }
+            if (entity == null)
+                return;
 
-        public T GetEntity<T>(string id) where T : IEntity
-        {
-            if (_entities.TryGetValue(id, out var entity))
-            {
-                return (T)entity;
-            }
-            throw new KeyNotFoundException($"Сущность с Id '{id}' не найдена");
+            RemoveEntity(entity.Id);
         }
 
         public IEnumerable<T> GetEntitiesOfType<T>() where T : IEntity
@@ -41,18 +41,20 @@
         {
             foreach (var entity in _entitiesToAdd)
             {
-                _entities[entity.Id] = entity;
-                Console.WriteLine($"Добавлено сущность: {entity.GetType().Name} {entity.Id}");
+                if (entity != null && !string.IsNullOrEmpty(entity.Id))
+                {
+                    _entities[entity.Id] = entity;
+                }
             }
             _entitiesToAdd.Clear();
 
             foreach (var entity in _entities.Values.ToList())
             {
-                if (entity.IsAlive)
+                if (entity?.IsAlive == true)
                 {
                     entity.Update(deltaTime);
                 }
-                else
+                else if (entity != null)
                 {
                     RemoveEntity(entity.Id);
                 }
@@ -60,9 +62,9 @@
 
             foreach (var entityId in _entitiesToRemove)
             {
-                if (_entities.Remove(entityId, out var removedEntity))
+                if (!string.IsNullOrEmpty(entityId))
                 {
-                    Console.WriteLine($"Удалена сущность: {removedEntity.GetType().Name} {entityId}");
+                    _entities.Remove(entityId);
                 }
             }
             _entitiesToRemove.Clear();
@@ -72,7 +74,7 @@
         {
             foreach (var entity in _entities.Values)
             {
-                if (entity.IsAlive)
+                if (entity?.IsAlive == true)
                 {
                     entity.Draw();
                 }

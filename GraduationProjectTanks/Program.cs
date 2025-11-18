@@ -28,7 +28,10 @@ namespace GraduationProjectTanks
                 renderer.Render();
 
                 if (gameplayState.IsDone())
+                {
+                    Thread.Sleep(FrameDelayMs * 30);
                     break;
+                }
 
                 Thread.Sleep(FrameDelayMs);
             }

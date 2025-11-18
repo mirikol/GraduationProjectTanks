@@ -15,7 +15,9 @@ namespace GraduationProjectTanks.Gameplay
         private Random _random;
         private int _currentLevel = 1;
         private bool _levelTransition = false;
-        private ShowTextState _levelTextState;
+        private ShowTextState? _levelTextState;
+        private ShowTextState? _gameOverState;
+        private bool _gameOver = false;
 
         public Map GetMap() => _map;
         public EntityManager EntityManager => _entityManager;
@@ -44,15 +46,48 @@ namespace GraduationProjectTanks.Gameplay
             int enemyCount = 2 + _currentLevel;
             CreateEnemies(enemyCount);
 
+            int mapPixelWidth = _map.Width * Map.CellSizeX;
+            int mapPixelHeight = _map.Height * Map.CellSizeY;
+
             _levelTransition = true;
-            _levelTextState = new ShowTextState($"Level {_currentLevel}", 2.0f);
+            _levelTextState = new ShowTextState($"Level {_currentLevel}", 2.0f, mapPixelWidth, mapPixelHeight);
+            _gameOver = false;
         }
 
         private void CreatePlayer()
         {
             var playerCharacteristics = TankCharacteristics.CreatePlayerCharacteristics();
-            var playerTank = new TankEntity(1, 1, true, playerCharacteristics, _entityManager, _map);
+            Vector2 safePosition = FindSafePosition(1, 1);
+
+            var playerTank = new TankEntity(safePosition.X, safePosition.Y, true, playerCharacteristics, _entityManager, _map, null);
             _entityManager.AddEntity(playerTank);
+        }
+
+        private Vector2 FindSafePosition(int startX, int startY)
+        {
+            if (_map.IsCellPassable(startX, startY))
+            {
+                return new Vector2(startX, startY);
+            }
+
+            for (int distance = 1; distance < Math.Max(_map.Width, _map.Height); distance++)
+            {
+                for (int x = Math.Max(1, startX - distance); x <= Math.Min(_map.Width - 2, startX + distance); x++)
+                {
+                    for (int y = Math.Max(1, startY - distance); y <= Math.Min(_map.Height - 2, startY + distance); y++)
+                    {
+                        if (Math.Abs(x - startX) + Math.Abs(y - startY) == distance)
+                        {
+                            if (_map.IsCellPassable(x, y))
+                            {
+                                return new Vector2(x, y);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return new Vector2(startX, startY);
         }
 
         private void CreateEnemies(int count)
@@ -86,10 +121,16 @@ namespace GraduationProjectTanks.Gameplay
 
         public override void Update(float deltaTime)
         {
+            if (_gameOver)
+            {
+                _gameOverState?.Update(deltaTime);
+                return;
+            }
+
             if (_levelTransition)
             {
-                _levelTextState.Update(deltaTime);
-                if (_levelTextState.IsDone())
+                _levelTextState?.Update(deltaTime);
+                if (_levelTextState?.IsDone() == true)
                 {
                     _levelTransition = false;
                 }
@@ -111,6 +152,10 @@ namespace GraduationProjectTanks.Gameplay
 
             if (!playerAlive)
             {
+                _gameOver = true;
+                int mapPixelWidth = _map.Width * Map.CellSizeX;
+                int mapPixelHeight = _map.Height * Map.CellSizeY;
+                _gameOverState = new ShowTextState("Game Over", 5.0f, mapPixelWidth, mapPixelHeight);
                 _isDone = true;
             }
             else if (!enemiesAlive)
@@ -123,6 +168,7 @@ namespace GraduationProjectTanks.Gameplay
         public override void Reset()
         {
             _isDone = false;
+            _gameOver = false;
             _currentLevel = 1;
             _entityManager = new EntityManager();
             StartLevel();
@@ -139,13 +185,14 @@ namespace GraduationProjectTanks.Gameplay
             _mapRenderer.DrawMap(_map, renderer, 0, 0);
             _mapRenderer.DrawEntities(_entityManager.Entities, renderer, 0, 0);
 
-            if (_levelTransition)
+            if (_gameOver)
             {
-                _levelTextState.Draw(renderer);
+                _gameOverState?.Draw(renderer);
+            }
+            else if (_levelTransition)
+            {
+                _levelTextState?.Draw(renderer);
             }
         }
-
-        public bool CanMoveTo(int x, int y) => _map.IsCellPassable(x, y);
-        public void DamageWall(int x, int y) => _map.DamageWall(x, y);
     }
 }

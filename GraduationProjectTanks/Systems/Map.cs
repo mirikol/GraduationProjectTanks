@@ -35,7 +35,7 @@ namespace GraduationProjectTanks.Systems
             return X >= minX && X < maxX && Y >= minY && Y < maxY;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is Cell cell && X == cell.X && Y == cell.Y;
         }
