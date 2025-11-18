@@ -13,13 +13,14 @@ namespace GraduationProjectTanks.Gameplay.Entities
         private Vector2 _position;
         private EntityManager _entityManager;
         private Map _map;
+        private EnemyAI _enemyAI;
 
         public override int X => _position.X;
         public override int Y => _position.Y;
         public override bool IsSolid => true;
         public override bool CanTakeDamage => true;
 
-        public TankEntity(int x, int y, bool isPlayer, TankCharacteristics characteristics, EntityManager entityManager, Map map)
+        public TankEntity(int x, int y, bool isPlayer, TankCharacteristics characteristics, EntityManager entityManager, Map map, Random random = null)
             : base(x, y, characteristics.MaxHealth)
         {
             _position = new Vector2(x, y);
@@ -28,6 +29,11 @@ namespace GraduationProjectTanks.Gameplay.Entities
             _entityManager = entityManager;
             _map = map;
             Direction = Direction.Up;
+
+            if (!isPlayer && random != null)
+            {
+                _enemyAI = new EnemyAI(this, map, entityManager, random);
+            }
         }
 
         public void Move(Direction direction)
@@ -94,6 +100,10 @@ namespace GraduationProjectTanks.Gameplay.Entities
         {
             if (_moveCooldown > 0) _moveCooldown -= deltaTime;
             if (_shootCooldown > 0) _shootCooldown -= deltaTime;
+            if (!IsPlayer && _enemyAI != null)
+            {
+                _enemyAI.Update(deltaTime);
+            }
         }
 
         public override void Draw()

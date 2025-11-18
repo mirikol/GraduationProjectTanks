@@ -1,4 +1,4 @@
-﻿namespace GraduationProjectTanks.Systems
+﻿namespace GraduationProjectTanks.Systems.Renderer
 {
     public interface IRenderer
     {

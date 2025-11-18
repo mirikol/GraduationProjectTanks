@@ -1,4 +1,4 @@
-﻿using GraduationProjectTanks.Systems;
+﻿using GraduationProjectTanks.Systems.Renderer;
 
 namespace GraduationProjectTanks.Gameplay
 {

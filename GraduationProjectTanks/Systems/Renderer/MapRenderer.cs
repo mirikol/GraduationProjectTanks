@@ -1,6 +1,6 @@
 ﻿using GraduationProjectTanks.Gameplay.Entities;
 
-namespace GraduationProjectTanks.Systems
+namespace GraduationProjectTanks.Systems.Renderer
 {
     public class MapRenderer
     {
@@ -23,7 +23,7 @@ namespace GraduationProjectTanks.Systems
             }
         }
 
-        private void DrawEntity(IEntity entity, ConsoleRenderer renderer, int offsetX, int offsetY)
+        private static void DrawEntity(IEntity entity, ConsoleRenderer renderer, int offsetX, int offsetY)
         {
             int screenX = offsetX + entity.X * Map.CellSizeX + Map.CellSizeX / 2;
             int screenY = offsetY + entity.Y * Map.CellSizeY + Map.CellSizeY / 2;
@@ -37,7 +37,7 @@ namespace GraduationProjectTanks.Systems
             renderer.SetPixel(screenX, screenY, symbol, renderer.GetColorIndex(color));
         }
 
-        private char GetEntitySymbol(IEntity entity)
+        private static char GetEntitySymbol(IEntity entity)
         {
             return entity switch
             {
@@ -47,7 +47,7 @@ namespace GraduationProjectTanks.Systems
             };
         }
 
-        private char GetTankSymbol(TankEntity tank)
+        private static char GetTankSymbol(TankEntity tank)
         {
             return tank.Direction switch
             {
@@ -59,7 +59,7 @@ namespace GraduationProjectTanks.Systems
             };
         }
 
-        private ConsoleColor GetEntityColor(IEntity entity)
+        private static ConsoleColor GetEntityColor(IEntity entity)
         {
             return entity switch
             {
@@ -83,7 +83,7 @@ namespace GraduationProjectTanks.Systems
             }
         }
 
-        private void DrawCell(Map map, int x, int y, ConsoleRenderer renderer, int offsetX, int offsetY)
+        private static void DrawCell(Map map, int x, int y, ConsoleRenderer renderer, int offsetX, int offsetY)
         {
             int screenX = offsetX + x * Map.CellSizeX;
             int screenY = offsetY + y * Map.CellSizeY;
@@ -106,7 +106,7 @@ namespace GraduationProjectTanks.Systems
             }
         }
 
-        private char GetCellSymbol(Map map, int x, int y)
+        private static char GetCellSymbol(Map map, int x, int y)
         {
             if (x < 0 || x >= map.Width || y < 0 || y >= map.Height)
                 return EmptyChar;
@@ -125,7 +125,7 @@ namespace GraduationProjectTanks.Systems
             };
         }
 
-        private ConsoleColor GetCellColor(Map map, int x, int y)
+        private static ConsoleColor GetCellColor(Map map, int x, int y)
         {
             if (x < 0 || x >= map.Width || y < 0 || y >= map.Height)
                 return ConsoleColor.Black;
@@ -141,7 +141,7 @@ namespace GraduationProjectTanks.Systems
             };
         }
 
-        private byte GetColorIndex(ConsoleColor color, ConsoleRenderer renderer)
+        private static byte GetColorIndex(ConsoleColor color, ConsoleRenderer renderer)
         {
             return renderer.GetColorIndex(color);
         }
