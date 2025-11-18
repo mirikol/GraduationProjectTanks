@@ -51,12 +51,5 @@
         public abstract void Draw();
 
         public abstract  void OnCollision(IEntity other);
-
-        protected bool CheckCollision(IEntity other, float tolerance = 1.0f)
-        {
-            float dx = Math.Abs(X - other.X);
-            float dy = Math.Abs(Y - other.Y);
-            return dx < tolerance && dy < tolerance;
-        }
     }
 }

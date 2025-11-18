@@ -1,7 +1,4 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-
-namespace GraduationProjectTanks.Systems
+﻿namespace GraduationProjectTanks.Systems
 {
     public enum Direction
     {
@@ -9,13 +6,6 @@ namespace GraduationProjectTanks.Systems
         Down,
         Left,
         Right
-    }
-
-    public enum EntityType
-    {
-        Tank,
-        Projectile,
-        Wall
     }
 
     public struct Vector2
@@ -32,7 +22,7 @@ namespace GraduationProjectTanks.Systems
         public static Vector2 operator +(Vector2 a, Vector2 b) => new(a.X + b.X, a.Y + b.Y);
         public static Vector2 operator -(Vector2 a, Vector2 b) => new(a.X - b.X, a.Y - b.Y);
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is Vector2 vector && X == vector.X && Y == vector.Y;
         }

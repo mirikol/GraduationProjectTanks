@@ -7,7 +7,7 @@ namespace GraduationProjectTanks.Gameplay.Entities
         public Direction Direction { get; }
         public float Speed { get; }
         public int Damage { get; }
-        public TankEntity Shooter { get; }
+        public TankEntity? Shooter { get; }
 
         private Vector2 _position;
         private float _moveTimer = 0f;
@@ -19,7 +19,7 @@ namespace GraduationProjectTanks.Gameplay.Entities
         public override bool IsSolid => false;
         public override bool CanTakeDamage => false;
 
-        public ProjectileEntity(int x, int y, Direction direction, float speed, int damage, EntityManager entityManager, Map map, TankEntity shooter = null)
+        public ProjectileEntity(int x, int y, Direction direction, float speed, int damage, EntityManager entityManager, Map map, TankEntity? shooter = null)
             : base(x, y, 1)
         {
             _position = new Vector2(x, y);

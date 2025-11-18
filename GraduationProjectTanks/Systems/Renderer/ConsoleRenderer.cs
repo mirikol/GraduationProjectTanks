@@ -14,12 +14,6 @@
 
         public ConsoleColor BgColor { get; set; }
 
-        public char this[int w, int h]
-        {
-            get { return _pixels[w, h]; }
-            set { _pixels[w, h] = value; }
-        }
-
         public ConsoleRenderer(ConsoleColor[] colors)
         {
             if (colors == null || colors.Length == 0)
@@ -155,21 +149,6 @@
             }
         }
 
-        public void DrawString(string text, int atWidth, int atHeight, byte colorIdx)
-        {
-            if (colorIdx >= _colors.Length)
-                colorIdx = 0;
-
-            for (int i = 0; i < text.Length && atWidth + i < Width; i++)
-            {
-                if (atWidth + i >= 0 && atHeight >= 0 && atHeight < Height)
-                {
-                    _pixels[atWidth + i, atHeight] = text[i];
-                    _pixelColors[atWidth + i, atHeight] = colorIdx;
-                }
-            }
-        }
-
         public void Clear()
         {
             for (int w = 0; w < Width; w++)
@@ -193,54 +172,6 @@
                     _pixels[w, h] = (char)0;
                 }
             }
-        }
-
-        public override bool Equals(object? obj)
-        {
-            if (obj is not ConsoleRenderer casted)
-                return false;
-
-            if (_maxWidth != casted._maxWidth || _maxHeight != casted._maxHeight ||
-                Width != casted.Width || Height != casted.Height ||
-                _colors.Length != casted._colors.Length)
-            {
-                return false;
-            }
-
-            for (int i = 0; i < _colors.Length; i++)
-            {
-                if (_colors[i] != casted._colors[i])
-                    return false;
-            }
-
-            for (int w = 0; w < Width; w++)
-                for (var h = 0; h < Height; h++)
-                {
-                    if (_pixels[w, h] != casted._pixels[w, h] || _pixelColors[w, h] != casted._pixelColors[w, h])
-                    {
-                        return false;
-                    }
-                }
-
-            return true;
-        }
-
-        public override int GetHashCode()
-        {
-            var hash = HashCode.Combine(_maxWidth, _maxHeight, Width, Height);
-
-            for (int i = 0; i < _colors.Length; i++)
-            {
-                hash = HashCode.Combine(hash, _colors[i]);
-            }
-
-            for (int w = 0; w < Width; w++)
-                for (var h = 0; h < Height; h++)
-                {
-                    hash = HashCode.Combine(hash, _pixelColors[w, h], _pixels[w, h]);
-                }
-
-            return hash;
         }
     }
 }
