@@ -7,7 +7,7 @@ namespace GraduationProjectTanks.Gameplay
     {
         private TankEntity _tank;
         private Map _map;
-        private EntityManager _entityManager;
+        private EntityController _entityController;
         private Random _random;
 
         private Vector2 _targetPosition;
@@ -15,11 +15,11 @@ namespace GraduationProjectTanks.Gameplay
         private float _decisionInterval = 2.0f;
         private float _playerDetectionRange = 5.0f;
 
-        public EnemyAI(TankEntity tank, Map map, EntityManager entityManager, Random random)
+        public EnemyAI(TankEntity tank, Map map, EntityController entityController, Random random)
         {
             _tank = tank;
             _map = map;
-            _entityManager = entityManager;
+            _entityController = entityController;
             _random = random;
             _targetPosition = new Vector2(tank.X, tank.Y);
             _decisionCooldown = _decisionInterval;
@@ -114,7 +114,7 @@ namespace GraduationProjectTanks.Gameplay
             if (!_map.IsCellPassable(newPosition.X, newPosition.Y))
                 return false;
 
-            var tanks = _entityManager.GetEntitiesOfType<TankEntity>();
+            var tanks = _entityController.GetEntitiesOfType<TankEntity>();
 
             foreach (var tank in tanks)
             {
@@ -129,7 +129,7 @@ namespace GraduationProjectTanks.Gameplay
 
         private void TryShootAtPlayer()
         {
-            var playerTank = _entityManager.GetEntitiesOfType<TankEntity>()
+            var playerTank = _entityController.GetEntitiesOfType<TankEntity>()
                 .FirstOrDefault(t => t.IsPlayer && t.IsAlive);
 
             if (playerTank == null)

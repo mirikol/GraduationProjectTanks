@@ -42,7 +42,7 @@ namespace GraduationProjectTanks.Gameplay
 
         private TankEntity? GetPlayerTank()
         {
-            return _gameplayState.EntityManager.GetEntitiesOfType<TankEntity>()
+            return _gameplayState.EntityController.GetEntitiesOfType<TankEntity>()
                 .FirstOrDefault(t => t.IsPlayer && t.IsAlive);
 
         }
