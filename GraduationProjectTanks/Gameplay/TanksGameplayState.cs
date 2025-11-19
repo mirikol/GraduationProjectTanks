@@ -10,7 +10,7 @@ namespace GraduationProjectTanks.Gameplay
         private MapRenderer _mapRenderer;
         private bool _isDone;
         private ConsoleRenderer _renderer;
-        private EntityManager _entityManager;
+        private EntityController _entityController;
         private CollisionSystem _collisionSystem;
         private Random _random;
         private int _currentLevel = 1;
@@ -20,7 +20,7 @@ namespace GraduationProjectTanks.Gameplay
         private bool _gameOver = false;
 
         public Map GetMap() => _map;
-        public EntityManager EntityManager => _entityManager;
+        public EntityController EntityController => _entityController;
         public int CurrentLevel => _currentLevel;
 
         public TanksGameplayState(int width, int height, int seed, ConsoleRenderer renderer)
@@ -28,8 +28,8 @@ namespace GraduationProjectTanks.Gameplay
             _map = new Map(width, height, seed);
             _mapRenderer = new MapRenderer();
             _renderer = renderer;
-            _entityManager = new EntityManager();
-            _collisionSystem = new CollisionSystem(_entityManager);
+            _entityController = new EntityController();
+            _collisionSystem = new CollisionSystem(_entityController);
             _random = new Random(seed);
 
             StartLevel();
@@ -37,8 +37,8 @@ namespace GraduationProjectTanks.Gameplay
 
         private void StartLevel()
         {
-            _entityManager = new EntityManager();
-            _collisionSystem = new CollisionSystem(_entityManager);
+            _entityController = new EntityController();
+            _collisionSystem = new CollisionSystem(_entityController);
             _map = new Map(_map.Width, _map.Height, _random.Next());
 
             CreatePlayer();
@@ -59,8 +59,8 @@ namespace GraduationProjectTanks.Gameplay
             var playerCharacteristics = TankCharacteristics.CreatePlayerCharacteristics();
             Vector2 safePosition = FindSafePosition(1, 1);
 
-            var playerTank = new TankEntity(safePosition.X, safePosition.Y, true, playerCharacteristics, _entityManager, _map, null);
-            _entityManager.AddEntity(playerTank);
+            var playerTank = new TankEntity(safePosition.X, safePosition.Y, true, playerCharacteristics, _entityController, _map, null);
+            _entityController.AddEntity(playerTank);
         }
 
         private Vector2 FindSafePosition(int startX, int startY)
@@ -106,15 +106,15 @@ namespace GraduationProjectTanks.Gameplay
                 if (!_map.IsCellPassable(x, y))
                     continue;
 
-                bool positionOccupied = _entityManager.GetEntitiesOfType<TankEntity>()
+                bool positionOccupied = _entityController.GetEntitiesOfType<TankEntity>()
                     .Any(t => Math.Abs(t.X - x) < 2 && Math.Abs(t.Y - y) < 2);
 
                 if (positionOccupied)
                     continue;
 
                 var enemyCharacteristics = TankCharacteristics.CreateEnemyCharacteristics(_random);
-                var enemyTank = new TankEntity(x, y, false, enemyCharacteristics, _entityManager, _map, _random);
-                _entityManager.AddEntity(enemyTank);
+                var enemyTank = new TankEntity(x, y, false, enemyCharacteristics, _entityController, _map, _random);
+                _entityController.AddEntity(enemyTank);
                 created++;
             }
         }
@@ -137,7 +137,7 @@ namespace GraduationProjectTanks.Gameplay
                 return;
             }
 
-            _entityManager.Update(deltaTime);
+            _entityController.Update(deltaTime);
             _collisionSystem.CheckCollision();
 
             CheckGameConditions();
@@ -145,7 +145,7 @@ namespace GraduationProjectTanks.Gameplay
 
         private void CheckGameConditions()
         {
-            var tanks = _entityManager.GetEntitiesOfType<TankEntity>().ToList();
+            var tanks = _entityController.GetEntitiesOfType<TankEntity>().ToList();
 
             bool playerAlive = tanks.Any(t => t.IsPlayer && t.IsAlive);
             bool enemiesAlive = tanks.Any(t => !t.IsPlayer && t.IsAlive);
@@ -170,7 +170,7 @@ namespace GraduationProjectTanks.Gameplay
             _isDone = false;
             _gameOver = false;
             _currentLevel = 1;
-            _entityManager = new EntityManager();
+            _entityController = new EntityController();
             StartLevel();
         }
                 
@@ -183,7 +183,7 @@ namespace GraduationProjectTanks.Gameplay
         {
             renderer.Clear();
             _mapRenderer.DrawMap(_map, renderer, 0, 0);
-            _mapRenderer.DrawEntities(_entityManager.Entities, renderer, 0, 0);
+            _mapRenderer.DrawEntities(_entityController.Entities, renderer, 0, 0);
 
             if (_gameOver)
             {

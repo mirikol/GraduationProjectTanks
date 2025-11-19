@@ -11,7 +11,7 @@ namespace GraduationProjectTanks.Gameplay.Entities
 
         private Vector2 _position;
         private float _moveTimer = 0f;
-        private EntityManager _entityManager;
+        private EntityController _entityController;
         private Map _map;
 
         public override int X => (int)_position.X;
@@ -19,14 +19,14 @@ namespace GraduationProjectTanks.Gameplay.Entities
         public override bool IsSolid => false;
         public override bool CanTakeDamage => false;
 
-        public ProjectileEntity(int x, int y, Direction direction, float speed, int damage, EntityManager entityManager, Map map, TankEntity? shooter = null)
+        public ProjectileEntity(int x, int y, Direction direction, float speed, int damage, EntityController entityController, Map map, TankEntity? shooter = null)
             : base(x, y, 1)
         {
             _position = new Vector2(x, y);
             Direction = direction;
             Speed = speed;
             Damage = damage;
-            _entityManager = entityManager;
+            _entityController = entityController;
             _map = map;
             Shooter = shooter;
         }
@@ -73,7 +73,7 @@ namespace GraduationProjectTanks.Gameplay.Entities
 
         private void CheckCollision()
         {
-            var tanks = _entityManager.GetEntitiesOfType<TankEntity>();
+            var tanks = _entityController.GetEntitiesOfType<TankEntity>();
 
             foreach (var tank in tanks)
             {
@@ -85,7 +85,7 @@ namespace GraduationProjectTanks.Gameplay.Entities
                 }
             }
 
-            var projectiles = _entityManager.GetEntitiesOfType<ProjectileEntity>();
+            var projectiles = _entityController.GetEntitiesOfType<ProjectileEntity>();
 
             foreach (var projectile in projectiles)
             {
