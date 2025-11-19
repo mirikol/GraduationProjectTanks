@@ -9,10 +9,10 @@ namespace GraduationProjectTanks.Systems.Renderer
         private const char EmptyChar = ' ';
         private const char DamagedBrickChar = '▒';
 
-        private const char TankUpChar = 'U';
-        private const char TankDownChar = 'D';
-        private const char TankLeftChar = 'L';
-        private const char TankRightChar = 'R';
+        private const char TankUpChar = '╩';
+        private const char TankDownChar = '╦';
+        private const char TankLeftChar = '╣';
+        private const char TankRightChar = '╠';
         private const char ProjectileChar = 'o';
 
         public void DrawEntities(IEnumerable<IEntity> entities, ConsoleRenderer renderer, int offsetX = 0, int offsetY = 0)

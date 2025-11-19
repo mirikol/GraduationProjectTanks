@@ -12,7 +12,7 @@ namespace GraduationProjectTanks
         {            
             var renderer = new ConsoleRenderer();
             var input = new ConsoleInput();            
-            var gameplayState = new TanksGameplayState(15, 15, 44219, renderer);
+            var gameplayState = new TanksGameplayState(15, 15, 4219, renderer);
             var gameLogic = new TanksGameLogic(gameplayState, input);
             var lastTime = DateTime.Now;
 
