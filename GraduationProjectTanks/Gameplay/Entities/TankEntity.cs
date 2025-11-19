@@ -11,7 +11,7 @@ namespace GraduationProjectTanks.Gameplay.Entities
         private float _moveCooldown = 0f;
         private float _shootCooldown = 0f;
         private Vector2 _position;
-        private EntityManager _entityManager;
+        private EntityController _entityController;
         private Map _map;
         private EnemyAI? _enemyAI;
 
@@ -20,19 +20,19 @@ namespace GraduationProjectTanks.Gameplay.Entities
         public override bool IsSolid => true;
         public override bool CanTakeDamage => true;
 
-        public TankEntity(int x, int y, bool isPlayer, TankCharacteristics characteristics, EntityManager entityManager, Map map, Random? random = null)
+        public TankEntity(int x, int y, bool isPlayer, TankCharacteristics characteristics, EntityController entityController, Map map, Random? random = null)
             : base(x, y, characteristics.MaxHealth)
         {
             _position = new Vector2(x, y);
             IsPlayer = isPlayer;
             Characteristics = characteristics;
-            _entityManager = entityManager;
+            _entityController = entityController;
             _map = map;
             Direction = Direction.Up;
 
             if (!isPlayer && random != null)
             {
-                _enemyAI = new EnemyAI(this, map, entityManager, random);
+                _enemyAI = new EnemyAI(this, map, entityController, random);
             }
         }
 
@@ -61,12 +61,12 @@ namespace GraduationProjectTanks.Gameplay.Entities
                 Direction,
                 Characteristics.ProjectileSpeed,
                 Characteristics.Damage,
-                _entityManager,
+                _entityController,
                 _map,
                 this
             );
 
-            _entityManager.AddEntity(projectile);
+            _entityController.AddEntity(projectile);
             _shootCooldown = Characteristics.ShootDelay;
         }
 
@@ -84,7 +84,7 @@ namespace GraduationProjectTanks.Gameplay.Entities
 
         private bool CheckTankCollision(Vector2 position)
         {
-            var tanks = _entityManager.GetEntitiesOfType<TankEntity>();
+            var tanks = _entityController.GetEntitiesOfType<TankEntity>();
 
             foreach (var tank in tanks)
             {
