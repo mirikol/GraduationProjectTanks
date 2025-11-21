@@ -84,16 +84,6 @@ namespace GraduationProjectTanks.Gameplay.Entities
                     return;
                 }
             }
-
-            var projectiles = _entityController.GetEntitiesOfType<ProjectileEntity>();
-
-            foreach (var projectile in projectiles)
-            {
-                if (projectile != this && projectile.IsAlive && Math.Abs(projectile.X - X) < 0.5f && Math.Abs(projectile.Y - Y) < 0.5f)
-                {
-                    continue;
-                }
-            }
         }
 
         public override void Draw()
