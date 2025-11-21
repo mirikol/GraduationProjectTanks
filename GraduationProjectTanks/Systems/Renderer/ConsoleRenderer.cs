@@ -149,6 +149,24 @@
             }
         }
 
+        public void SetConsoleSize(int width, int height)
+        {
+            try
+            {
+                if (width <= Console.LargestWindowWidth && height <= Console.LargestWindowHeight)
+                {
+                    Console.WindowWidth = width;
+                    Console.WindowHeight = height;
+                    Width = width;
+                    Height = height;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Cannot set console size: {ex.Message}");
+            }
+        }
+
         public void Clear()
         {
             for (int w = 0; w < Width; w++)
