@@ -87,7 +87,7 @@ namespace GraduationProjectTanks.Gameplay.Entities
         }
 
         public override void Draw()
-        {            
+        {
         }
 
         public override void OnCollision(IEntity other)

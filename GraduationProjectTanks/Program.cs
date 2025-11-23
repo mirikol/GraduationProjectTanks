@@ -10,7 +10,7 @@ namespace GraduationProjectTanks
         private const int ConsoleHeight = 40;
         private const int MapWidth = 15;
         private const int MapHeight = 15;
-        private const int RandomSeed = 4219;
+        private const int RandomSeed = 1;
 
         private const int FrameDelayMs = 100;
 
