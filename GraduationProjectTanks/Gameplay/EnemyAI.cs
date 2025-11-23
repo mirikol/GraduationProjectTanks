@@ -5,23 +5,23 @@ namespace GraduationProjectTanks.Gameplay
 {
     public class EnemyAI
     {
-        private TankEntity _tank;
-        private Map _map;
-        private EntityController _entityController;
-        private Random _random;
+        private readonly IMoveable _tank;
+        private readonly Map _map;
+        private readonly EntityController _entityController;
+        private readonly Random _random;
 
         private Vector2 _targetPosition;
         private float _decisionCooldown;
         private float _decisionInterval = 2.0f;
         private float _playerDetectionRange = 5.0f;
 
-        public EnemyAI(TankEntity tank, Map map, EntityController entityController, Random random)
+        public EnemyAI(IMoveable tank, Map map, EntityController entityController, Random random)
         {
             _tank = tank;
             _map = map;
             _entityController = entityController;
             _random = random;
-            _targetPosition = new Vector2(tank.X, tank.Y);
+            _targetPosition = new Vector2(tank.Position.X, tank.Position.Y);
             _decisionCooldown = _decisionInterval;
         }
 
@@ -59,11 +59,11 @@ namespace GraduationProjectTanks.Gameplay
 
         private void MoveTowardsTarget()
         {
-            if (Math.Abs(_tank.X - _targetPosition.X) < 1 && Math.Abs(_tank.Y - _targetPosition.Y) < 1)
+            if (Math.Abs(_tank.Position.X - _targetPosition.X) < 1 && Math.Abs(_tank.Position.Y - _targetPosition.Y) < 1)
                 return;
 
-            int dx = _targetPosition.X - _tank.X;
-            int dy = _targetPosition.Y - _tank.Y;
+            int dx = _targetPosition.X - _tank.Position.X;
+            int dy = _targetPosition.Y - _tank.Position.Y;
 
             Direction preferredDirection;
 
@@ -76,7 +76,7 @@ namespace GraduationProjectTanks.Gameplay
                 preferredDirection = dy > 0 ? Direction.Down : Direction.Up;
             }
 
-            if (CanMoveInDirection(preferredDirection))
+            if (_tank.CanMoveInDirection(preferredDirection))
             {
                 _tank.Move(preferredDirection);
                 return;
@@ -92,39 +92,12 @@ namespace GraduationProjectTanks.Gameplay
 
             foreach (var direction in directions)
             {
-                if (CanMoveInDirection(direction))
+                if (_tank.CanMoveInDirection(direction))
                 {
                     _tank.Move(direction);
                     return;
                 }
             }
-        }
-
-        private bool CanMoveInDirection(Direction direction)
-        {
-            Vector2 newPosition = direction switch
-            {
-                Direction.Up => new Vector2(_tank.X, _tank.Y - 1),
-                Direction.Down => new Vector2(_tank.X, _tank.Y + 1),
-                Direction.Left => new Vector2(_tank.X - 1, _tank.Y),
-                Direction.Right => new Vector2(_tank.X + 1, _tank.Y),
-                _ => new Vector2(_tank.X, _tank.Y)
-            };
-
-            if (!_map.IsCellPassable(newPosition.X, newPosition.Y))
-                return false;
-
-            var tanks = _entityController.GetEntitiesOfType<TankEntity>();
-
-            foreach (var tank in tanks)
-            {
-                if (tank != _tank && tank.IsAlive && Math.Abs(tank.X - newPosition.X) < 0.5f && Math.Abs(tank.Y - newPosition.Y) < 0.5f)
-                {
-                    return false;
-                }
-            }
-
-            return true;
         }
 
         private void TryShootAtPlayer()
@@ -135,14 +108,17 @@ namespace GraduationProjectTanks.Gameplay
             if (playerTank == null)
                 return;
 
-            float distance = MathF.Sqrt(MathF.Pow(playerTank.X - _tank.X, 2) + MathF.Pow(playerTank.Y - _tank.Y, 2));
+            float distance = MathF.Sqrt(MathF.Pow(playerTank.X - _tank.Position.X, 2) + MathF.Pow(playerTank.Y - _tank.Position.Y, 2));
 
             if (distance > _playerDetectionRange)
                 return;
 
             if (IsPlayerInSight(playerTank) && HasClearShotToPlayer(playerTank))
             {
-                _tank.Shoot();
+                if (_tank is TankEntity tankEntity)
+                {
+                    tankEntity.Shoot();
+                }
             }
         }
 
@@ -150,18 +126,18 @@ namespace GraduationProjectTanks.Gameplay
         {
             return _tank.Direction switch
             {
-                Direction.Up => player.Y < _tank.Y && Math.Abs(player.X - _tank.X) < 0.5f,
-                Direction.Down => player.Y > _tank.Y && Math.Abs(player.X - _tank.X) < 0.5f,
-                Direction.Left => player.X < _tank.X && Math.Abs(player.Y - _tank.Y) < 0.5f,
-                Direction.Right => player.X > _tank.X && Math.Abs(player.Y - _tank.Y) < 0.5f,
+                Direction.Up => player.Y < _tank.Position.Y && Math.Abs(player.X - _tank.Position.X) < 0.5f,
+                Direction.Down => player.Y > _tank.Position.Y && Math.Abs(player.X - _tank.Position.X) < 0.5f,
+                Direction.Left => player.X < _tank.Position.X && Math.Abs(player.Y - _tank.Position.Y) < 0.5f,
+                Direction.Right => player.X > _tank.Position.X && Math.Abs(player.Y - _tank.Position.Y) < 0.5f,
                 _ => false
             };
         }
 
         private bool HasClearShotToPlayer(TankEntity player)
         {
-            int startX = _tank.X;
-            int startY = _tank.Y;
+            int startX = _tank.Position.X;
+            int startY = _tank.Position.Y;
             int endX = player.X;
             int endY = player.Y;
 
