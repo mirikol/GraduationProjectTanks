@@ -12,8 +12,13 @@ namespace GraduationProjectTanks.Gameplay
 
         private Vector2 _targetPosition;
         private float _decisionCooldown;
-        private float _decisionInterval = 2.0f;
+        private float _decisionInterval = 3.0f;
         private float _playerDetectionRange = 5.0f;
+
+        private const float PositionThreshold = 1.0f;
+        private const float SightAlignmentThreshold = 0.5f;
+        private const int MaxDecisionAttempts = 10;
+        private const int MapBorderOffset = 1;
 
         public EnemyAI(IMoveable tank, Map map, EntityController entityController, Random random)
         {
@@ -38,6 +43,7 @@ namespace GraduationProjectTanks.Gameplay
             TryShootAtPlayer();
         }
 
+        // Выбирает случайную точку на карте. Проверяет, что точка достижима. Устанавливает глобальную цель (_targetPosition).
         private void MakeMovementDecision()
         {
             int attempts = 0;
@@ -45,21 +51,24 @@ namespace GraduationProjectTanks.Gameplay
 
             do
             {
-                newTarget = new Vector2(_random.Next(1, _map.Width - 1), _random.Next(1, _map.Height - 1));
+                newTarget = new Vector2(_random.Next(MapBorderOffset, _map.Width - MapBorderOffset), _random.Next(MapBorderOffset, _map.Height - MapBorderOffset));
                 attempts++;
-            } while (!IsPositionReachable(newTarget) && attempts < 10);
+            } while (!IsPositionReachable(newTarget) && attempts < MaxDecisionAttempts);
 
             _targetPosition = newTarget;
         }
 
+        // можно ли туда добраться?
         private bool IsPositionReachable(Vector2 position)
         {
+            // можно ли стоять на этой клетке?
             return _map.IsCellPassable(position.X, position.Y);
         }
 
+        // Двигается к уже установленной цели. Обходит препятствия в реальном времени. Принимает тактические решения на каждом кадре.
         private void MoveTowardsTarget()
         {
-            if (Math.Abs(_tank.Position.X - _targetPosition.X) < 1 && Math.Abs(_tank.Position.Y - _targetPosition.Y) < 1)
+            if (Math.Abs(_tank.Position.X - _targetPosition.X) < PositionThreshold && Math.Abs(_tank.Position.Y - _targetPosition.Y) < PositionThreshold)
                 return;
 
             int dx = _targetPosition.X - _tank.Position.X;
@@ -108,6 +117,7 @@ namespace GraduationProjectTanks.Gameplay
             if (playerTank == null)
                 return;
 
+            // Формула Евклидово расстояние между двумя точками в 2D-пространстве. Где 2 это возведение в квадрат.
             float distance = MathF.Sqrt(MathF.Pow(playerTank.X - _tank.Position.X, 2) + MathF.Pow(playerTank.Y - _tank.Position.Y, 2));
 
             if (distance > _playerDetectionRange)
@@ -126,14 +136,15 @@ namespace GraduationProjectTanks.Gameplay
         {
             return _tank.Direction switch
             {
-                Direction.Up => player.Y < _tank.Position.Y && Math.Abs(player.X - _tank.Position.X) < 0.5f,
-                Direction.Down => player.Y > _tank.Position.Y && Math.Abs(player.X - _tank.Position.X) < 0.5f,
-                Direction.Left => player.X < _tank.Position.X && Math.Abs(player.Y - _tank.Position.Y) < 0.5f,
-                Direction.Right => player.X > _tank.Position.X && Math.Abs(player.Y - _tank.Position.Y) < 0.5f,
+                Direction.Up => player.Y < _tank.Position.Y && Math.Abs(player.X - _tank.Position.X) < SightAlignmentThreshold,
+                Direction.Down => player.Y > _tank.Position.Y && Math.Abs(player.X - _tank.Position.X) < SightAlignmentThreshold,
+                Direction.Left => player.X < _tank.Position.X && Math.Abs(player.Y - _tank.Position.Y) < SightAlignmentThreshold,
+                Direction.Right => player.X > _tank.Position.X && Math.Abs(player.Y - _tank.Position.Y) < SightAlignmentThreshold,
                 _ => false
             };
         }
 
+        // Проверка на припятствия на пути снаряда.
         private bool HasClearShotToPlayer(TankEntity player)
         {
             int startX = _tank.Position.X;
@@ -180,11 +191,15 @@ namespace GraduationProjectTanks.Gameplay
             return true;
         }
 
+        // алгоритм Фишера-Йейтся (Кнута) для случайного перемешивания списка.
         private void Shuffle<T>(IList<T> list)
         {
+            //начинаем с последнего элемента. Идём до первого элемента.
             for (int i = list.Count - 1; i > 0; i--)
             {
+                //выбор случайного индекса от 0 до i включительно.
                 int j = _random.Next(i + 1);
+                // обмен элементов.
                 (list[i], list[j]) = (list[j], list[i]);
             }
         }
