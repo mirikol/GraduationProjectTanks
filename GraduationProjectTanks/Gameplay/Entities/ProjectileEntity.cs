@@ -4,6 +4,9 @@ namespace GraduationProjectTanks.Gameplay.Entities
 {
     public class ProjectileEntity : BaseEntity
     {
+        private const float MoveThreshold = 1.0f;
+        private const float CollisionThreshold = 0.5f;
+        private const int InitialHealth = 1;
         public Direction Direction { get; }
         public float Speed { get; }
         public int Damage { get; }
@@ -20,7 +23,7 @@ namespace GraduationProjectTanks.Gameplay.Entities
         public override bool CanTakeDamage => false;
 
         public ProjectileEntity(int x, int y, Direction direction, float speed, int damage, EntityController entityController, Map map, TankEntity? shooter = null)
-            : base(x, y, 1)
+            : base(x, y, InitialHealth)
         {
             _position = new Vector2(x, y);
             Direction = direction;
@@ -35,7 +38,7 @@ namespace GraduationProjectTanks.Gameplay.Entities
         {
             _moveTimer += deltaTime;
 
-            if (_moveTimer >= 1.0f / Speed)
+            if (_moveTimer >= MoveThreshold / Speed)
             {
                 Move();
                 _moveTimer = 0f;
@@ -77,7 +80,7 @@ namespace GraduationProjectTanks.Gameplay.Entities
 
             foreach (var tank in tanks)
             {
-                if (tank.IsAlive && tank != Shooter && Math.Abs(tank.X - X) < 0.5f && Math.Abs(tank.Y - Y) < 0.5f)
+                if (tank.IsAlive && tank != Shooter && Math.Abs(tank.X - X) < CollisionThreshold && Math.Abs(tank.Y - Y) < CollisionThreshold)
                 {
                     tank.TakeDamage(Damage);
                     Health = 0;

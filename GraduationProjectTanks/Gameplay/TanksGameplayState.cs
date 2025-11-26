@@ -6,10 +6,18 @@ namespace GraduationProjectTanks.Gameplay
 {
     public class TanksGameplayState : BaseGameState
     {
+        private const int BaseEnemyCount = 2;
+        private const int MaxEnemyCreationAttempts = 100;
+        private const int PlayerStartX = 1;
+        private const int PlayerStartY = 1;
+        private const int EnemySpawnBorderOffset = 2;
+        private const float EnemySpawnMinDistance = 2.0f;
+        private const float LevelTextDuration = 2.0f;
+        private const float GameOverTextDuration = 5.0f;
+
         private Map _map;
         private MapRenderer _mapRenderer;
         private bool _isDone;
-        private ConsoleRenderer _renderer;
         private EntityController _entityController;
         private CollisionSystem _collisionSystem;
         private Random _random;
@@ -19,15 +27,12 @@ namespace GraduationProjectTanks.Gameplay
         private ShowTextState? _gameOverState;
         private bool _gameOver = false;
 
-        public Map GetMap() => _map;
         public EntityController EntityController => _entityController;
-        public int CurrentLevel => _currentLevel;
-
+        
         public TanksGameplayState(int width, int height, int seed, ConsoleRenderer renderer)
         {
             _map = new Map(width, height, seed);
             _mapRenderer = new MapRenderer();
-            _renderer = renderer;
             _entityController = new EntityController();
             _collisionSystem = new CollisionSystem(_entityController);
             _random = new Random(seed);
@@ -43,21 +48,21 @@ namespace GraduationProjectTanks.Gameplay
 
             CreatePlayer();
 
-            int enemyCount = 2 + _currentLevel;
+            int enemyCount = BaseEnemyCount + _currentLevel;
             CreateEnemies(enemyCount);
 
             int mapPixelWidth = _map.Width * Map.CellSizeX;
             int mapPixelHeight = _map.Height * Map.CellSizeY;
 
             _levelTransition = true;
-            _levelTextState = new ShowTextState($"Level {_currentLevel}", 2.0f, mapPixelWidth, mapPixelHeight);
+            _levelTextState = new ShowTextState($"Level {_currentLevel}", LevelTextDuration, mapPixelWidth, mapPixelHeight);
             _gameOver = false;
         }
 
         private void CreatePlayer()
         {
             var playerCharacteristics = TankCharacteristics.CreatePlayerCharacteristics();
-            Vector2 safePosition = FindSafePosition(1, 1);
+            Vector2 safePosition = FindSafePosition(PlayerStartX, PlayerStartY);
 
             var playerTank = new TankEntity(safePosition.X, safePosition.Y, true, playerCharacteristics, _entityController, _map, null);
             _entityController.AddEntity(playerTank);
@@ -94,20 +99,19 @@ namespace GraduationProjectTanks.Gameplay
         {
             int created = 0;
             int attempts = 0;
-            int maxAttempts = 100;
 
-            while (created < count && attempts < maxAttempts)
+            while (created < count && attempts < MaxEnemyCreationAttempts)
             {
                 attempts++;
-
-                int x = _random.Next(2, _map.Width - 2);
-                int y = _random.Next(2, _map.Height - 2);
+                // отступ от границы карты для спавна enemies.
+                int x = _random.Next(EnemySpawnBorderOffset, _map.Width - EnemySpawnBorderOffset);
+                int y = _random.Next(EnemySpawnBorderOffset, _map.Height - EnemySpawnBorderOffset);
 
                 if (!_map.IsCellPassable(x, y))
                     continue;
 
                 bool positionOccupied = _entityController.GetEntitiesOfType<TankEntity>()
-                    .Any(t => Math.Abs(t.X - x) < 2 && Math.Abs(t.Y - y) < 2);
+                    .Any(t => Math.Abs(t.X - x) < EnemySpawnMinDistance && Math.Abs(t.Y - y) < EnemySpawnMinDistance);
 
                 if (positionOccupied)
                     continue;
@@ -155,7 +159,7 @@ namespace GraduationProjectTanks.Gameplay
                 _gameOver = true;
                 int mapPixelWidth = _map.Width * Map.CellSizeX;
                 int mapPixelHeight = _map.Height * Map.CellSizeY;
-                _gameOverState = new ShowTextState("Game Over", 5.0f, mapPixelWidth, mapPixelHeight);
+                _gameOverState = new ShowTextState("Game Over", GameOverTextDuration, mapPixelWidth, mapPixelHeight);
                 _isDone = true;
             }
             else if (!enemiesAlive)
