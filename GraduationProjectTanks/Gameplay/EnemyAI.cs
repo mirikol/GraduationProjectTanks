@@ -169,7 +169,7 @@ namespace GraduationProjectTanks.Gameplay
 
                 if (x != startX && y != startY)
                 {
-                    if (!_map.IsCellPassbleForProjectile(x, y))
+                    if (!_map.IsCellPassableForProjectile(x, y))
                         return false;
                 }
 
