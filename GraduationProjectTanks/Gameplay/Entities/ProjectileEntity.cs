@@ -64,7 +64,7 @@ namespace GraduationProjectTanks.Gameplay.Entities
                 return;
             }
 
-            if (!_map.IsCellPassbleForProjectile((int)newPosition.X, (int)newPosition.Y))
+            if (!_map.IsCellPassableForProjectile((int)newPosition.X, (int)newPosition.Y))
             {
                 _map.DamageWall((int)newPosition.X, (int)newPosition.Y);
                 Health = 0;
