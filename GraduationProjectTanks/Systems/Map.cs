@@ -1,61 +1,7 @@
-﻿using static GraduationProjectTanks.Systems.Cell;
+﻿using GraduationProjectTanks.Systems.Data;
 
 namespace GraduationProjectTanks.Systems
 {
-    public enum CellType
-    {
-        Empty,
-        Brick,
-        Water
-    }
-    
-    public enum WallState
-    {
-        Destroyed,
-        Damaged,
-        Intact
-    }
-
-    public struct Cell
-    {
-        public int X;
-        public int Y;
-
-        public Cell(int x, int y)
-        {
-            X = x;
-            Y = y;
-        }
-
-        public static Cell Sum(Cell a, Cell b) => new(a.X + b.X, a.Y + b.Y);
-        public static Cell Sub(Cell a, Cell b) => new(a.X - b.X, a.Y - b.Y);
-
-        public bool IsInBounds(int minX, int minY, int maxX, int maxY)
-        {
-            return X >= minX && X < maxX && Y >= minY && Y < maxY;
-        }
-
-        public override bool Equals(object? obj)
-        {
-            return obj is Cell cell && X == cell.X && Y == cell.Y;
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(X, Y);
-        }
-
-        public static bool operator ==(Cell left, Cell right)
-        {
-            return left.Equals(right);
-        }
-
-        public static bool operator !=(Cell left, Cell right)
-        {
-            return !left.Equals(right);
-        }
-    }
-
     public class Map
     {
         public const int CellSizeX = 4;
@@ -166,7 +112,7 @@ namespace GraduationProjectTanks.Systems
 
             foreach (var shift in NeighbourCellShifts)
             {
-                var neighbor = Sum(cell, new Cell(shift.X * 2, shift.Y * 2));
+                var neighbor = Cell.Sum(cell, new Cell(shift.X * 2, shift.Y * 2));
                 
                 if (neighbor.IsInBounds(1, 1, Width - 1, Height - 1) && !visited[neighbor.X, neighbor.Y])
                 {
@@ -236,7 +182,7 @@ namespace GraduationProjectTanks.Systems
 
                 foreach (var shift in NeighbourCellShifts)
                 {
-                    var neighbor = Sum(current, shift);
+                    var neighbor = Cell.Sum(current, shift);
 
                     if (neighbor.IsInBounds(1, 1, Width - 1, Height - 1) && !visited[neighbor.X, neighbor.Y] && _random.NextDouble() > 0.3)
                     {
@@ -258,7 +204,7 @@ namespace GraduationProjectTanks.Systems
             return Cells[x, y] == CellType.Empty;
         }
 
-        public bool IsCellPassbleForProjectile(int x, int y)
+        public bool IsCellPassableForProjectile(int x, int y)
         {
             if (x < 0 || x >= Width || y < 0 || y >= Height)
                 return false;
