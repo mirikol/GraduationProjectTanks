@@ -27,32 +27,51 @@ namespace GraduationProjectTanks.Gameplay
         private ShowTextState? _gameOverState;
         private bool _gameOver = false;
 
+        private readonly MapConfiguration _mapConfig;
+
         public EntityController EntityController => _entityController;
         
-        public TanksGameplayState(int width, int height, int seed, ConsoleRenderer renderer)
+        public TanksGameplayState(MapConfiguration mapConfiguration, IRenderer renderer)
         {
-            _map = new Map(width, height, seed);
+            _mapConfig = mapConfiguration ?? throw new ArgumentNullException(nameof(mapConfiguration));
+            
+            _random = new Random(mapConfiguration.Seed);
             _mapRenderer = new MapRenderer();
             _entityController = new EntityController();
             _collisionSystem = new CollisionSystem(_entityController);
-            _random = new Random(seed);
+            
+            _map = new Map(mapConfiguration);
 
             StartLevel();
-        }
+        }               
 
         private void StartLevel()
         {
             _entityController = new EntityController();
             _collisionSystem = new CollisionSystem(_entityController);
-            _map = new Map(_map.Width, _map.Height, _random.Next());
+            
+            var levelConfig = new MapConfiguration()
+            {
+                Width = _mapConfig.Width,
+                Height = _mapConfig.Height,
+                CellSizeX = _mapConfig.CellSizeX,
+                CellSizeY = _mapConfig.CellSizeY,
+                MaxWaterSources = _mapConfig.MaxWaterSources,
+                MaxWaterAmount = _mapConfig.MaxWaterAmount,
+                GenerateMaze = _mapConfig.GenerateMaze,
+                GenerateWater = _mapConfig.GenerateWater,
+                Seed = _random.Next()
+            };
+
+            _map = new Map(levelConfig);
 
             CreatePlayer();
 
             int enemyCount = BaseEnemyCount + _currentLevel;
             CreateEnemies(enemyCount);
 
-            int mapPixelWidth = _map.Width * Map.CellSizeX;
-            int mapPixelHeight = _map.Height * Map.CellSizeY;
+            int mapPixelWidth = _map.Width * _map.CellSizeX;
+            int mapPixelHeight = _map.Height * _map.CellSizeY;
 
             _levelTransition = true;
             _levelTextState = new ShowTextState($"Level {_currentLevel}", LevelTextDuration, mapPixelWidth, mapPixelHeight);
@@ -157,8 +176,8 @@ namespace GraduationProjectTanks.Gameplay
             if (!playerAlive)
             {
                 _gameOver = true;
-                int mapPixelWidth = _map.Width * Map.CellSizeX;
-                int mapPixelHeight = _map.Height * Map.CellSizeY;
+                int mapPixelWidth = _map.Width * _map.CellSizeX;
+                int mapPixelHeight = _map.Height * _map.CellSizeY;
                 _gameOverState = new ShowTextState("Game Over", GameOverTextDuration, mapPixelWidth, mapPixelHeight);
                 _isDone = true;
             }
@@ -175,6 +194,9 @@ namespace GraduationProjectTanks.Gameplay
             _gameOver = false;
             _currentLevel = 1;
             _entityController = new EntityController();
+
+            _random = new Random(_mapConfig.Seed);
+
             StartLevel();
         }
                 
@@ -187,7 +209,7 @@ namespace GraduationProjectTanks.Gameplay
         {
             renderer.Clear();
             _mapRenderer.DrawMap(_map, renderer, 0, 0);
-            _mapRenderer.DrawEntities(_entityController.Entities, renderer, 0, 0);
+            _mapRenderer.DrawEntities(_entityController.Entities, _map, renderer, 0, 0);
 
             if (_gameOver)
             {
