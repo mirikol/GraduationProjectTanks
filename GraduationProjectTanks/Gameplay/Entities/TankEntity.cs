@@ -41,7 +41,8 @@ namespace GraduationProjectTanks.Gameplay.Entities
 
         public void Move(Direction direction)
         {
-            if (_moveCooldown > 0f) return;
+            if (_moveCooldown > 0f)
+                return;
 
             Direction = direction;
             Vector2 newPosition = CalculateNextPosition(direction);

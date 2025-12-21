@@ -16,18 +16,18 @@ namespace GraduationProjectTanks.Systems.Renderer
         private const char TankRightChar = '╠';
         private const char ProjectileChar = 'o';
 
-        public void DrawEntities(IEnumerable<IEntity> entities, ConsoleRenderer renderer, int offsetX = 0, int offsetY = 0)
+        public void DrawEntities(IEnumerable<IEntity> entities, Map map, ConsoleRenderer renderer, int offsetX = 0, int offsetY = 0)
         {
             foreach (var entity in entities.Where(e => e.IsAlive))
             {
-                DrawEntity(entity, renderer, offsetX, offsetY);
+                DrawEntity(entity, map, renderer, offsetX, offsetY);
             }
         }
 
-        private static void DrawEntity(IEntity entity, ConsoleRenderer renderer, int offsetX, int offsetY)
+        private static void DrawEntity(IEntity entity, Map map, ConsoleRenderer renderer, int offsetX, int offsetY)
         {
-            int screenX = offsetX + entity.X * Map.CellSizeX + Map.CellSizeX / 2;
-            int screenY = offsetY + entity.Y * Map.CellSizeY + Map.CellSizeY / 2;
+            int screenX = offsetX + entity.X * map.CellSizeX + map.CellSizeX / 2;
+            int screenY = offsetY + entity.Y * map.CellSizeY + map.CellSizeY / 2;
 
             if (screenX >= renderer.Width || screenY >= renderer.Height || screenX < 0 || screenY < 0)
                 return;
@@ -72,8 +72,8 @@ namespace GraduationProjectTanks.Systems.Renderer
 
         public void DrawMap(Map map, ConsoleRenderer renderer, int offsetX = 0, int offsetY = 0)
         {
-            int maxX = Math.Min(map.Width, (renderer.Width - offsetX) / Map.CellSizeX);
-            int maxY = Math.Min(map.Height, (renderer.Height - offsetY) / Map.CellSizeY);
+            int maxX = Math.Min(map.Width, (renderer.Width - offsetX) / map.CellSizeX);
+            int maxY = Math.Min(map.Height, (renderer.Height - offsetY) / map.CellSizeY);
 
             for (int x = 0; x < maxX; x++)
             {
@@ -86,8 +86,8 @@ namespace GraduationProjectTanks.Systems.Renderer
 
         private static void DrawCell(Map map, int x, int y, ConsoleRenderer renderer, int offsetX, int offsetY)
         {
-            int screenX = offsetX + x * Map.CellSizeX;
-            int screenY = offsetY + y * Map.CellSizeY;
+            int screenX = offsetX + x * map.CellSizeX;
+            int screenY = offsetY + y * map.CellSizeY;
 
             if (screenX >= renderer.Width || screenY >= renderer.Height)
                 return;
@@ -95,9 +95,9 @@ namespace GraduationProjectTanks.Systems.Renderer
             char symbol = GetCellSymbol(map, x, y);
             ConsoleColor color = GetCellColor(map, x, y);
 
-            for (int dx = 0; dx < Map.CellSizeX; dx++)
+            for (int dx = 0; dx < map.CellSizeX; dx++)
             {
-                for (int dy = 0; dy < Map.CellSizeY; dy++)
+                for (int dy = 0; dy < map.CellSizeY; dy++)
                 {
                     if (screenX + dx < renderer.Width && screenY + dy < renderer.Height)
                     {

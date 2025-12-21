@@ -4,11 +4,6 @@ namespace GraduationProjectTanks.Systems
 {
     public class Map
     {
-        public const int CellSizeX = 4;
-        public const int CellSizeY = 2;
-        public const int MaxWaterSources = 3;
-        public const int MaxWaterAmount = 10;
-
         private static readonly Cell[] NeighbourCellShifts = new Cell[]
         {
             new(0, -1),
@@ -22,29 +17,38 @@ namespace GraduationProjectTanks.Systems
         public CellType[,] Cells { get; }
         public WallState[,] WallStates { get; }
 
+        private readonly MapConfiguration _mapConfig;
         private Random _random;
 
-        public Map(int width, int height, int seed)
+        public int CellSizeX => _mapConfig.CellSizeX;
+        public int CellSizeY => _mapConfig.CellSizeY;
+
+        public Map(MapConfiguration mapConfig)
         {
-            Width = width;
-            Height = height;
-            Cells = new CellType[width, height];
-            WallStates = new WallState[width, height];
-            _random = new Random(seed);
+            _mapConfig = mapConfig;
+            Width = mapConfig.Width;
+            Height = mapConfig.Height;
+
+            Cells = new CellType[Width, Height];
+            WallStates = new WallState[Width, Height];
+            _random = new Random(mapConfig.Seed);
 
             GenerateWalls();
         }
 
         private void GenerateWalls()
         {
+            // Инициализация всех ячеек как пустых.
             for (int x = 0; x < Width; x++)
                 for (int y = 0; y < Height; y++)
                     Cells[x, y] = CellType.Empty;
 
             GeneratePerimeterWall();
 
-            GenerateMaze();
+            if (_mapConfig.GenerateMaze)
+                GenerateMaze();
 
+            if (_mapConfig.GenerateWater)
             GenerateWater();
         }
 
@@ -147,7 +151,7 @@ namespace GraduationProjectTanks.Systems
             if (emptyCells.Count == 0)
                 return;
 
-            int waterSources = Math.Min(_random.Next(1, MaxWaterSources + 1), emptyCells.Count);
+            int waterSources = Math.Min(_random.Next(1, _mapConfig.MaxWaterSources + 1), emptyCells.Count);
 
             Shuffle(emptyCells);
 
@@ -165,7 +169,7 @@ namespace GraduationProjectTanks.Systems
 
             var queue = new Queue<Cell>();
             var visited = new bool[Width, Height];
-            int waterAmount = _random.Next(3, MaxWaterAmount + 1);
+            int waterAmount = _random.Next(3, _mapConfig.MaxWaterAmount + 1);
             int created = 0;
             queue.Enqueue(new Cell(startX, startY));
             visited[startX, startY] = true;

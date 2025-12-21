@@ -8,19 +8,18 @@ namespace GraduationProjectTanks
     {
         private const int ConsoleWidth = 120;
         private const int ConsoleHeight = 40;
-        private const int MapWidth = 15;
-        private const int MapHeight = 15;
-        private const int RandomSeed = 1;
-
         private const int FrameDelayMs = 100;
+        private const int GameOverDelayMultiplier = 30;
 
         static void Main()
-        {            
+        {
+            MapConfiguration mapConfiguration = MapConfiguration.CreateDefault();
+
             var renderer = new ConsoleRenderer();
             renderer.SetConsoleSize(ConsoleWidth, ConsoleHeight);
 
             var input = new ConsoleInput();            
-            var gameplayState = new TanksGameplayState(MapWidth, MapHeight, RandomSeed, renderer);
+            var gameplayState = new TanksGameplayState(mapConfiguration, renderer);
             var gameLogic = new TanksGameLogic(gameplayState, input);
             var lastTime = DateTime.Now;
 
@@ -37,7 +36,7 @@ namespace GraduationProjectTanks
 
                 if (gameplayState.IsDone())
                 {
-                    Thread.Sleep(FrameDelayMs * 30);
+                    Thread.Sleep(FrameDelayMs * GameOverDelayMultiplier);
                     break;
                 }
 
